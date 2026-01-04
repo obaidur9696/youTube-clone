@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import userRouter from './routes/user.routes.js'
 
 const app = express()
 app.use(cors({
@@ -17,4 +18,9 @@ app.use(express.urlencoded({extended: true, limit:"20kb"}))
 //access the static files
 app.use(express.static("public"))
 app.use(cookieParser())
+
+//user route declaration
+app.use("/api/v1/users", userRouter)  //http://localhost:8000/api/v1/users  endpoint of api.
+
+
 export {app}
