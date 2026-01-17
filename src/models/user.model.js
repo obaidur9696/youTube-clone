@@ -18,7 +18,7 @@ const userSchema = new Schema(
             lowercase: true,
             trim: true
         },
-        Fullname: {
+        fullName: {
             type: String,
             require: true,
             trim: true,
@@ -44,7 +44,8 @@ const userSchema = new Schema(
             select: false // good security practice
         },
         refreshToken: {
-            type: String
+            type: String,
+            select: false
         }
 
     },

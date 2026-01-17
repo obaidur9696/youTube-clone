@@ -26,3 +26,5 @@ const uploadOnCloudnary = async (localFilePath) => {
 }
 
 export {uploadOnCloudnary}
+
+unlinkSync

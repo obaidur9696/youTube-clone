@@ -9,7 +9,7 @@ app.use(cors({
     credentials: true
 }))
 
-//to handle json formate
+//to handle json formate data
 app.use(express.json({limit: "20kb"}))
 
 //to handle the data from url
