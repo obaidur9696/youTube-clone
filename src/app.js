@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import userRouter from './routes/user.routes.js'
+import { errorMiddleware } from "./middlewares/error.middleware.js"
 
 const app = express()
 app.use(cors({
@@ -21,6 +22,8 @@ app.use(cookieParser())
 
 //user route declaration
 app.use("/api/v1/users", userRouter)  //http://localhost:8000/api/v1/users  endpoint of api.
+
+app.use(errorMiddleware)
 
 
 export {app}
