@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs/promises";
 import "dotenv/config";
+import { ApiError } from "./ApiError";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
@@ -22,11 +23,20 @@ const uploadOnCloudinary = async (localFilePath) => {
   } catch (error) {
     try {
       await fs.unlink(localFilePath);
-    } catch (_) {}
-
-    console.error("Cloudinary upload failed:", error.message);
+    } catch (_) { }
+    throw new ApiError(500, error.message || "Failed to upload file to Cloudinary");
     return null;
   }
 };
 
-export { uploadOnCloudinary };
+const deleteFromCloudinary = async (publicId) => {
+  if (!publicId) return;
+
+  try {
+    await cloudinary.uploader.destroy(publicId);
+  } catch (error) {
+    throw new ApiError(500, error.message || "Cloudinary delete failed:");
+  }
+};
+
+export { uploadOnCloudinary, deleteFromCloudinary };

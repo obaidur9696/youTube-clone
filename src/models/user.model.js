@@ -25,11 +25,22 @@ const userSchema = new Schema(
             index: true
         },
         avatar: {
-            type: String,
-            require: true
+            url: {
+                type: String,
+                required: true
+            },
+            public_id: {
+                type: String,
+                required: true
+            }
         },
         coverImage: {
-            type: String
+            url: {
+                type: String
+            },
+            public_id: {
+                type: String
+            }
         },
         watchHistroy: [
             {
@@ -83,7 +94,7 @@ userSchema.methods.generateAcessToken = async function () {
 }
 
 userSchema.methods.generateRefreshToken = async function () {
-const payload = {
+    const payload = {
         _id: this._id
     }
     const secret = process.env.REFRESH_TOKEN_SECRET

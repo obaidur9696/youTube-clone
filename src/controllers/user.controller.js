@@ -1,7 +1,7 @@
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { ApiError } from '../utils/ApiError.js';
 import { User } from '../models/user.model.js';
-import { uploadOnCloudinary } from '../utils/cloudinary.js';
+import { uploadOnCloudinary, deleteFromCloudinary } from '../utils/cloudinary.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import jwt from 'jsonwebtoken'
 
@@ -77,8 +77,14 @@ const registerUser = asyncHandler(async (req, res) => {
 
    const user = await User.create({
       fullName,
-      avatar: avatar.url,
-      coverImage: coverImage?.url || "",
+      avatar: {
+         url: avatar?.url,
+         public_id: avatar?.public_id
+      },
+      coverImage: {
+         url: coverImage?.url,
+         public_id: coverImage?.public_id
+      },
       email,
       password,
       username: username.toLowerCase()
@@ -257,7 +263,11 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 const getCurrentUser = asyncHandler(async (req, res) => {
    return res.
       status(200)
-      .json(200, req.user, "Current user fetched successfully")
+      .json(new ApiResponse(
+         200,
+         req.user,
+         "Current user fetched successfully"
+      ))
 })
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
@@ -267,7 +277,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
       throw new ApiError(400, "All fields are required in updation")
    }
 
-   const user = User.findByIdAndUpdate(
+   const user = await User.findByIdAndUpdate(
       req.user?._id,
       {
          $set: {
@@ -291,6 +301,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
    const avatarLocalPath = req.file?.path    // here we have req.file because we want to only update only file that is wht we are nou using req.files like how we used in the registered case.
+   const oldAvatarPublicId = req.user?.avatar?.public_id;
 
    if (!avatarLocalPath) {
       throw new ApiError(400, "AVATAR FILE IS MISSING")
@@ -312,6 +323,11 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
       { new: true }
    )
 
+   // delete old avatar from cloudinary
+   if (oldAvatarPublicId) {
+      await deleteFromCloudinary(oldAvatarPublicId);
+   }
+
    return res
       .status(200)
       .json(
@@ -326,6 +342,8 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 
 const updateUserCoverImage = asyncHandler(async (req, res) => {
    const coverImageLocalPath = req.file?.path    // here we have req.file because we want to only update only file that is wht we are nou using req.files like how we used in the registered case.
+
+   const oldCoverImagePublicId = req.user?.coverImage?.public_id;
 
    if (!coverImageLocalPath) {
       throw new ApiError(400, "COVERIMAGE FILE IS MISSING")
@@ -346,6 +364,11 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
       },
       { new: true }
    )
+
+   // delete old coverImage from cloudinary
+   if (oldCoverImagePublicId) {
+      await deleteFromCloudinary(oldCoverImagePublicId);
+   }
 
    return res
       .status(200)
