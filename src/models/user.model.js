@@ -41,7 +41,7 @@ const userSchema = new Schema(
             type: String,
             require: [true, "Password is required"],
             minlength: 6,
-            select: false // good security practice
+            select: false // this feild never come in the user good security practice
         },
         refreshToken: {
             type: String,
